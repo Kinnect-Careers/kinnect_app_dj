@@ -1,5 +1,5 @@
 from rest_framework.generics import (
-    ListAPIView,
+    ListCreateAPIView,
     RetrieveAPIView,
 )
 
@@ -13,7 +13,7 @@ class PartnerApiDetail(RetrieveAPIView):
     lookup_field = "slug"
 
 
-class PartnerApiList(ListAPIView):
+class PartnerApiList(ListCreateAPIView):
     queryset = Partner.objects.all()
     serializer_class = PartnerSerializer
 

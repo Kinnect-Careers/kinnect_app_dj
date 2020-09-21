@@ -1,5 +1,5 @@
 from rest_framework.generics import (
-    ListAPIView,
+    ListCreateAPIView,
     RetrieveAPIView,
 )
 
@@ -13,7 +13,7 @@ class CompanyApiDetail(RetrieveAPIView):
     lookup_field = "slug"
 
 
-class CompanyApiList(ListAPIView):
+class CompanyApiList(ListCreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
 
