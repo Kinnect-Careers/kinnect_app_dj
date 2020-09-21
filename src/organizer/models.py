@@ -39,7 +39,7 @@ class Company(Model):
         populate_from=["name"],
         help_text="A label for company URL config",
     )
-    tags = ManyToManyFields(Tag)
+    tags = ManyToManyField(Tag)
 
     class Meta:
         ordering = [
@@ -56,7 +56,7 @@ class Partner(Company):
     website = URLField(max_length=250)
 
     class Meta:
-        get_latest_by = "founded_date"
+        get_latest_by = "name"
         ordering = ("name",)
 
 
