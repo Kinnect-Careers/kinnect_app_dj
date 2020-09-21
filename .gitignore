@@ -107,3 +107,11 @@ wwwenv/
 # mypy
 .mypy_cache/
 .vscode/settings.json
+
+# Templates
+src/templates
+
+# Temp file
+.temp
+.todo
+
