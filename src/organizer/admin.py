@@ -18,7 +18,7 @@ class PartnerAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "location",
-        "contact",
+        "email",
         "description",
         "website",
         "slug",
