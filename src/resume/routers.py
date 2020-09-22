@@ -26,4 +26,6 @@ api_router.register("education", EducationViewSet, base_name="api-education")
 api_router.register("resume", ResumeViewSet, base_name="api-resume")
 api_router.register("submission", SubmissionViewSet, base_name="api-submission")
 
-api_routes = api_router.urls
+urlpatterns = api_router.urls
+
+

@@ -1,6 +1,7 @@
 from rest_framework.serializers import (
     HyperlinkedModelSerializer,
-    ModelSerializer
+    HyperlinkedRelatedField,
+    ModelSerializer,
 )
 from .models import (
     Skill,
@@ -16,15 +17,17 @@ from .models import (
 
 import sys
 sys.path.append('..')
+from organizer.models import Company
 from organizer.serializers import TagSerializer, CompanySerializer, JobSerializer
 
 
 class SkillSerializer(HyperlinkedModelSerializer):
     """Serializer for Skill data"""
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Skill
+        #exclude = ("id",)
         fields = "__all__"
         extra_kwargs = {
             "url": {
@@ -39,17 +42,21 @@ class TaskSerializer(ModelSerializer):
 
     class Meta:
         model = Task
-        fields = "__all__"
+        exclude = ("id", "experience")
 
 
 class ExperienceSerializer(ModelSerializer):
     """Serializer for Experience data"""
-    #task_set = TaskSerializer(many=True)
-    company = CompanySerializer
-    task_set = TaskSerializer(many=True)
+    company = HyperlinkedRelatedField(
+        queryset=Company.objects.all(),
+        lookup_field="slug",
+        view_name="api-company-detail",
+    )
+    task_set = TaskSerializer(many=True, read_only=True)
     class Meta:
         model = Experience
-        fields = "__all__"
+        #fields = "__all__"
+        exclude = ("id",)
 
 
 class InstitutionSerializer(HyperlinkedModelSerializer):
@@ -67,10 +74,14 @@ class InstitutionSerializer(HyperlinkedModelSerializer):
 
 class EducationSerializer(ModelSerializer):
     """Serializer for Education data"""
-    institution = InstitutionSerializer
+    institution = HyperlinkedRelatedField(
+        queryset=Institution.objects.all(),
+        lookup_field="slug",
+        view_name="api-institution-detail",
+    )
     class Meta:
         model = Education
-        fields = "__all__"
+        exclude = ("id",)
 
 
 class ContactSerializer(HyperlinkedModelSerializer):
@@ -101,15 +112,15 @@ class LinkSerializer(HyperlinkedModelSerializer):
 
 class ResumeSerializer(ModelSerializer):
     """Serializer for Resume data"""
-    contacts = ContactSerializer(many=True)
-    links = LinkSerializer(many=True)
-    experiences = ExperienceSerializer(many=True)
-    educations = EducationSerializer(many=True)
-    skills = SkillSerializer(many=True)
+    contacts = ContactSerializer(many=True, read_only=True)
+    links = LinkSerializer(many=True, read_only=True)
+    experiences = ExperienceSerializer(many=True, read_only=True)
+    educations = EducationSerializer(many=True, read_only=True)
+    skills = SkillSerializer(many=True, read_only=True)
 
     class Meta:
         model = Resume
-        fields = "__all__"
+        exclude = ("id",)
 
 
 class ApplicationSubmissionSerializer(ModelSerializer):

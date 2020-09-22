@@ -24,9 +24,10 @@ from .serializers import (
     ApplicationSubmissionSerializer
 )
 
+from organizer.viewsets import HasTagViewSet
 
-class SkillViewSet(ModelViewSet):
-    lookup_field = "slug"
+
+class SkillViewSet(HasTagViewSet):
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
 
