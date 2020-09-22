@@ -1,13 +1,15 @@
+from rest_framework.reverse import reverse
 from rest_framework.serializers import (
     HyperlinkedModelSerializer,
+    HyperlinkedRelatedField,
     ModelSerializer,
+    SerializerMethodField,
 )
 from .models import Tag, Company, Partner, Job
-#from resume.serializers import SkillSerializer
+
 
 class TagSerializer(HyperlinkedModelSerializer):
     """Serializer for Tag data"""
-    #skill_set = SkillSerializer(many=True)
     class Meta:
         model = Tag
         fields = "__all__"
@@ -21,23 +23,28 @@ class TagSerializer(HyperlinkedModelSerializer):
 
 class CompanySerializer(ModelSerializer):
     """Serializer for Company data"""
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(many=True, read_only=True)
+
     class Meta:
         model = Company
-        fields = "__all__"
+        exclude = ("id",)
 
 
 class PartnerSerializer(CompanySerializer):
     """Serializer for Partner data"""
     class Meta:
         model = Partner
-        fields = "__all__"
+        exclude = ("id",)
 
 
 class JobSerializer(ModelSerializer):
     """Serializer for Job data"""
-    partner = PartnerSerializer
-    tags = TagSerializer(many=True)
+    partner = HyperlinkedRelatedField(
+        queryset=Partner.objects.all(),
+        lookup_field="slug",
+        view_name="api-partner-detail",
+    )
+    tags = TagSerializer(many=True, read_only=True)
     class Meta:
         model = Job
-        fields = "__all__"
+        exclude = ("id",)
