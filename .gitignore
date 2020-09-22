@@ -115,3 +115,5 @@ src/templates
 .temp
 .todo
 
+# Swap files
+*.swp
