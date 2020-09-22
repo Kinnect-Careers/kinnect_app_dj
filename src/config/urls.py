@@ -22,6 +22,8 @@ from resume.routers import urlpatterns as resume_api_urls
 
 api_urls = resume_api_urls + organizer_api_urls
 
+admin.site.site_header = "Kinnect Careers Administration"
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_urls)),
