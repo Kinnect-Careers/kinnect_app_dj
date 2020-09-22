@@ -12,38 +12,22 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
-from environ import Env
+from environ import Env, Path
 
 ENV = Env()
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))
-)
+BASE_DIR = Path(__file__) - 3
 
+SECRET_KEY = ENV.str("SECRET_KEY")
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
+DEBUG = ENV.bool("DEBUG", default=False)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = (
-    "c*7bf+k##nm6t*9sjc_@#2hls0+3acma=)hk$(i5bo4rbk56ho"
-)
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    ENV("PUBLIC_IP"),
-    ENV("PRIVATE_IP"),
-]
-
+ALLOWED_HOSTS = []
 
 # Application definition
 
 INSTALLED_APPS = [
+    "whitenoise.runserver_nostatic",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -53,14 +37,14 @@ INSTALLED_APPS = [
     # Vendor
     "rest_framework",
     "django_extensions",
-    # Dev
-    #"jobsplatform.apps.JobsPlatformConfig",
+    # App
     "organizer.apps.OrganizerConfig",
     "resume.apps.ResumeConfig",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -136,8 +120,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
-
+STATIC_ROOT = BASE_DIR("runtime", "static")
 STATIC_URL = "/static/"
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 NOTEBOOK_ARGUMENTS = [
     "--ip",
