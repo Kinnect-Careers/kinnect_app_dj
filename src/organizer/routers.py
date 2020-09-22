@@ -1,47 +1,18 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-from .views.tags import TagApiDetail, TagApiList
-from .views.companies import (
-    CompanyApiList,
-    CompanyApiDetail,
-)
-from .views.partners import (
-    PartnerApiList,
-    PartnerApiDetail
-)
-from .views.jobs import (
-    JobApiList,
-    JobApiDetail,
+from .viewsets import (
+    TagViewSet,
+    CompanyViewSet,
+    PartnerViewSet,
+    JobViewSet,
 )
 
-urlpatterns = [
-    path(
-        "company/",
-        CompanyApiList.as_view(),
-        name="api-company-list",
-    ),
-    path(
-        "company/<str:slug>/",
-        CompanyApiDetail.as_view(),
-        name="api-company-detail",
-    ),
-    path(
-        "partner/",
-        PartnerApiList.as_view(),
-        name="api-partner-list",
-    ),
-    path(
-        "partner/<str:slug>/",
-        PartnerApiDetail.as_view(),
-        name="api-partner-detail",
-    ),
-    path("tag/", TagApiList.as_view(), name="api-tag-list"),
-    path("tag/<str:slug>/", TagApiDetail.as_view(), name="api-tag-detail"),
-    path("job/", JobApiList.as_view(), name="api-job-list"),
-    path(
-        "job/<str:partner_slug>/<str:job_slug>/",
-        JobApiDetail.as_view(),
-        name="api-job-detail",
-    ),
+api_router = SimpleRouter()
+api_router.register("tag", TagViewSet, base_name="api-tag")
+api_router.register("company", CompanyViewSet, base_name="api-company")
+api_router.register("partner", PartnerViewSet, base_name="api-partner")
+api_router.register("job", JobViewSet, base_name="api-job")
+api_routes = api_router.urls
 
-]
+urlpatterns = api_routes
+
