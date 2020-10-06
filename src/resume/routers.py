@@ -1,6 +1,8 @@
-from rest_framework.routers import SimpleRouter
+from rest_framework.routers import DefaultRouter
 
 from .viewsets import (
+    UserViewSet,
+    GroupViewSet,
     SkillViewSet,
     ExperienceViewSet,
     TaskViewSet,
@@ -12,7 +14,9 @@ from .viewsets import (
     SubmissionViewSet,
 )
 
-api_router = SimpleRouter()
+api_router = DefaultRouter()
+api_router.register("user", UserViewSet, base_name="api-user")
+api_router.register("group", GroupViewSet, base_name="api-group")
 api_router.register("skill", SkillViewSet, base_name="api-skill")
 api_router.register("experience", ExperienceViewSet, base_name="api-experience")
 api_router.register("task", TaskViewSet, base_name="api-task")

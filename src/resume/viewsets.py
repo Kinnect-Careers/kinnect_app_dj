@@ -1,3 +1,5 @@
+from django.contrib.auth.models import Group, User
+from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet
 
 from .models import (
@@ -13,6 +15,8 @@ from .models import (
 )
 
 from .serializers import (
+    GroupSerializer,
+    UserSerializer,
     SkillSerializer,
     ExperienceSerializer,
     TaskSerializer,
@@ -26,6 +30,18 @@ from .serializers import (
 
 from organizer.viewsets import HasTagViewSet
 
+
+class UserViewSet(ModelViewSet):
+    """ API endpoint that allow users to edit their profile """
+    queryset = User.objects.all().order_by("-date_joined")
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class GroupViewSet(ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 class SkillViewSet(HasTagViewSet):
     queryset = Skill.objects.all()
