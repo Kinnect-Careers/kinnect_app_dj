@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User, Group
 from rest_framework.serializers import (
     HyperlinkedModelSerializer,
     HyperlinkedRelatedField,
@@ -19,6 +20,18 @@ import sys
 sys.path.append('..')
 from organizer.models import Company
 from organizer.serializers import TagSerializer, CompanySerializer, JobSerializer
+
+
+class UserSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ["url", "username", "email", "groups"]
+
+
+class GroupSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = Group
+        fields = ["url", "name"]
 
 
 class SkillSerializer(HyperlinkedModelSerializer):
