@@ -18,13 +18,22 @@ from django.urls import path, include
 
 from organizer.routers import urlpatterns as organizer_api_urls
 from resume.routers import urlpatterns as resume_api_urls
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 #from jobsplatform import urls as jobs_urls
 
 api_urls = resume_api_urls + organizer_api_urls
 
 admin.site.site_header = "Kinnect Careers Administration"
 
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_urls)),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
 ]

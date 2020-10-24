@@ -5,7 +5,6 @@ from .viewsets import (
     GroupViewSet,
     SkillViewSet,
     ExperienceViewSet,
-    TaskViewSet,
     InstitutionViewSet,
     EducationViewSet,
     ContactViewSet,
@@ -19,7 +18,6 @@ api_router.register("user", UserViewSet, base_name="api-user")
 api_router.register("group", GroupViewSet, base_name="api-group")
 api_router.register("skill", SkillViewSet, base_name="api-skill")
 api_router.register("experience", ExperienceViewSet, base_name="api-experience")
-api_router.register("task", TaskViewSet, base_name="api-task")
 api_router.register("contact", ContactViewSet, base_name="api-contact")
 api_router.register("link", LinkViewSet, base_name="api-link")
 api_router.register(

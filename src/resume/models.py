@@ -15,17 +15,16 @@ from organizer.models import Tag, Company, Job
 
 
 class Skill(Model):
-    name = CharField(max_length=150, unique=True)
+    name = CharField(max_length=150)
     slug = AutoSlugField(
         max_length=50, populate_from=["name"]
     )
     description = TextField()
     created_at = DateTimeField(auto_now_add=True)
-    version = IntegerField(default=1)
     tags = ManyToManyField(Tag)
 
     class Meta:
-        ordering = ["created_at", "version"]
+        ordering = ["-created_at"]
         verbose_name = "added skill"
 
     def __str__(self):
@@ -33,35 +32,27 @@ class Skill(Model):
 
 
 class Experience(Model):
-    company = ForeignKey(Company, on_delete=CASCADE)
+    job_title = CharField(max_length=100)
+    location = CharField(max_length=100)
+    company = CharField(max_length=150)
     slug = AutoSlugField(
-        max_length=50, populate_from=["id", "started_at"]
+        max_length=50, populate_from=["id", "job_title"]
     )
     started_at = DateField()
     ended_at = DateField(null=True, blank=True)
     current = BooleanField(default=True)
     created_at = DateTimeField(auto_now_add=True)
+    tasks = TextField()
 
     class Meta:
-        ordering = ("created_at",)
+        ordering = ("-created_at",)
 
     def __str__(self):
-        return self.company.name
-
-
-class Task(Model):
-    experience = ForeignKey(Experience, on_delete=CASCADE)
-    slug = AutoSlugField(
-        max_length=50, populate_from=["id", "description"]
-    )
-    description = TextField()
-    created_at = DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ("created_at",)
-
-    def __str__(self):
-        return f"Task for: {self.experience.company.name}"
+        return "{} at {} had {}".format(
+            self.job_title,
+            self.company,
+            len(self.tasks.split('\n'))
+        )
 
 
 class Institution(Model):
@@ -74,7 +65,7 @@ class Institution(Model):
     version = IntegerField(default=1)
 
     class Meta:
-        ordering = ("created_at", "version")
+        ordering = ("-created_at",)
 
     def __str__(self):
         return self.name
@@ -87,7 +78,7 @@ class Education(Model):
     BA = "BA"
     MS = "MS"
     MA = "MA"
-    PH = "PH"
+    PH = "Phd"
     DEGREE_CHOICES = (
         (HSI, "Incomplete High School"),
         (HS, "High School"),
@@ -102,20 +93,17 @@ class Education(Model):
         choices=DEGREE_CHOICES,
         default=BS,
     )
+    degree = CharField(max_length=100)
     slug = AutoSlugField(
         max_length=50, populate_from=["id", "degree_type"]
     )
-    institution = ForeignKey(
-        Institution,
-        related_name="institution",
-        on_delete=CASCADE,
-    )
+    institution = CharField(max_length=250)
     started_at = DateField()
-    ended_at = DateField()
+    ended_at = DateField(blank=True, null=True)
     current = BooleanField()
 
     class Meta:
-        ordering = ("ended_at",)
+        ordering = ("-ended_at", "-started_at")
 
     def __str__(self):
         return (
@@ -143,7 +131,7 @@ class Contact(Model):
     created_at = DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ("created_at",)
+        ordering = ("-created_at",)
 
     def __str__(self):
         return f"{self.contact_type}: {self.contact}"
@@ -171,7 +159,7 @@ class Link(Model):
     # owner = ForeignKey("auth.User", on_delete=CASCADE)
 
     class Meta:
-        ordering = ("created_at",)
+        ordering = ("-created_at",)
 
     def __str__(self):
         return f"{self.link_type}: {self.link}"
@@ -190,7 +178,7 @@ class Resume(Model):
     created_at = DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ("created_at",)
+        ordering = ("-created_at",)
 
     def __str__(self):
         return self.title

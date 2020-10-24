@@ -1,3 +1,5 @@
+from faker import Faker
+
 from organizer.models import (
     Tag,
     Company,
@@ -7,7 +9,6 @@ from organizer.models import (
 from resume.models import (
     Skill,
     Experience,
-    Task,
     Institution,
     Education,
     Contact,
@@ -17,173 +18,211 @@ from resume.models import (
 )
 
 from datetime import datetime
+from random import randint
+
+faker = Faker()
 
 
 # Tags fixtures
 Tag.objects.all().delete()
-tg1 = Tag.objects.create(name="Web")
-tg2 = Tag.objects.create(name="Management")
-tg3 = Tag.objects.create(name="Security")
-tg4 = Tag.objects.create(name="Entry level")
-tg5 = Tag.objects.create(name="Engineering")
-tg6 = Tag.objects.create(name="Arts")
-tg7 = Tag.objects.create(name="Consultant")
-tg8 = Tag.objects.create(name="Food")
+Skill.objects.all().delete()
+Company.objects.all().delete()
+Partner.objects.all().delete()
+Experience.objects.all().delete()
+Institution.objects.all().delete()
+Education.objects.all().delete()
+Contact.objects.all().delete()
+Link.objects.all().delete()
+Resume.objects.all().delete()
+print("Deleted all previous data")
+
+
+set_tags = set([faker.word() for _ in range(100)])
+tags = []
+for tag in set_tags:
+    tags.append(Tag.objects.create(name=tag.title()))
+
+print(f"Added tags {len(tags)}")
 
 # Skills fixtures
-Skill.objects.all().delete()
-sk1 = Skill.objects.create(
-    name="Dog Walker",
-    description="Walks dogs around the park",
-)
-sk1.tags.add(tg3)
-sk1.tags.add(tg5)
-sk1.tags.add(tg8)
+set_skills = set([' '.join(faker.words(2)).title() for i in range(150)])
+skills = []
+for skill in set_skills:
+    skills.append(
+        Skill.objects.create(
+            name=skill,
+            description=faker.text(),
+        )
+    )
+print(f"Added Skills {len(skills)}")
 
-sk2 = Skill.objects.create(
-    name="Web Designer",
-    description="Designs web sites",
-)
-sk2.tags.add(tg1)
-sk2.tags.add(tg2)
-print("Added Skills")
+for sk in skills:
+    for _ in range(2):
+        choice = randint(0, len(tags)-1)
+        sk.tags.add(tags[choice])
+print(f"Added Tags to Skills")
 
 # Companies and Partners fixtures
-Company.objects.all().delete()
-cp1 = Company.objects.create(
-    name="Cool Walker", location="NY/New York",
-)
-cp1.tags.add(tg4)
-cp1.tags.add(tg7)
+locations = [faker.address() for _ in range(20)]
 
-pt1 = Partner.objects.create(
-    name="Walkery Walk",
-    location="NY/New York",
-    email="walkery@walk.com",
-    description="Makes appointments between dog walkers and customers",
-    website="walkery.com",
-)
-pt1.tags.add(tg1)
-pt1.tags.add(tg6)
-pt1.tags.add(tg7)
+companies = [
+    Company.objects.create(
+        name=f"{' '.join(faker.words(3)).title()}",
+        location=locations[i%20],
+    )
+    for i in range(100)
+]
+for cp in companies:
+    for _ in range(2):
+        choice = randint(0, len(tags)-1)
+        cp.tags.add(tags[choice])
 
-print("Added Companies and partners")
+
+partners = []
+for i in range(100):
+    name = faker.words(3)
+    partners.append(
+        Partner.objects.create(
+            name=f"{' '.join(name).title()}",
+            location=locations[i%20],
+            email=f"contact@{''.join(name)}.com",
+            description=f"{faker.text()}",
+            website=f"{''.join(name)}.com",
+        )
+    )
+
+for pt in partners:
+    for _ in range(3):
+        choice = randint(0, len(tags)-1)
+        pt.tags.add(tags[choice])
+
+print(f"Added Companies {len(companies)} and partners {len(partners)}")
 
 # Experiences fixtures
-Experience.objects.all().delete()
-exp1 = Experience.objects.create(
-    company=cp1, started_at=datetime.today(), current=False
-)
-exp2 = Experience.objects.create(
-    company=pt1, started_at=datetime.today(), current=True
-)
-print("Added experiences")
 
-# Tasks fixtures
-Task.objects.all().delete()
-tsk1 = Task.objects.create(
-    experience=exp1,
-    description="This is a description 1",
-)
-tsk2 = Task.objects.create(
-    experience=exp1,
-    description="This is a description 2",
-)
-tsk3 = Task.objects.create(
-    experience=exp2,
-    description="This is a description 3",
-)
-tsk4 = Task.objects.create(
-    experience=exp2,
-    description="This is a description 4",
-)
-print("Added experiences")
+exps = [
+    Experience.objects.create(
+        job_title=faker.job(),
+        company=companies[i%20].name,
+        location=" ".join(locations[i%20].split(' ')[-3:-1]),
+        started_at=faker.date_time_this_decade(),
+        ended_at=faker.date_time_this_year(),
+        current=False,
+        tasks=f'{faker.text()}\n{faker.text()}\n{faker.text()}'
+    )
+    for i in range(200)
+]
+print(f"Added experiences {len(exps)}")
 
 # Institutions fixtures
-Institution.objects.all().delete()
-ins1 = Institution.objects.create(
-    name="Cool School", location="NY/Brooklyn"
-)
-ins2 = Institution.objects.create(
-    name="Cool University", location="NY/New York"
-)
-print("Added institutions")
+school_types = ["High School", "College", "University", "Institute"]
+ins = [
+    Institution.objects.create(
+        name=f"{' '.join(faker.words(2))} {school_types[i%4]}",
+        location=locations[i%20]
+    )
+    for i in range(50)
+]
+print(f"Added institutions {len(ins)}")
 
 # Education fixtures
-Education.objects.all().delete()
-ed1 = Education.objects.create(
-    degree_type="HS",
-    institution=ins1,
-    started_at=datetime.today(),
-    ended_at=datetime.today(),
-    current=False,
-)
-ed2 = Education.objects.create(
-    degree_type="BS",
-    institution=ins2,
-    started_at=datetime.today(),
-    ended_at=datetime.today(),
-    current=False,
-)
-print("Added educations")
+ed_options = ["Science", "Art", "Therapy"]
+degree_types = ["HSI", "HS", "BS", "MS", "MA", "Phd"]
+degrees = [el for el in set([f'{faker.word().title()} {ed_options[i%3]}' for i in range(30)])]
+eds = [
+    Education.objects.create(
+        degree_type=degree_types[i%4],
+        degree=(degrees[i%len(degrees)] if len(degrees[i%len(degrees)]) < 100 else degrees[i%len(degrees)][:99]),
+        institution=ins[i%50],
+        started_at=faker.date_time_this_decade(),
+        ended_at=faker.date_time_this_decade(),
+        current=False,
+    )
+    for i in range(200)
+]
+print(f"Added educations {len(eds)}")
 
 # Contacts fixtures
-Contact.objects.all().delete()
-ct1 = Contact.objects.create(
-    contact_type="P",
-    contact="97889172389",
-)
-ct2 = Contact.objects.create(
-    contact_type="E",
-    contact="email@example.com",
-)
-print("Added contacts")
+contact_type = ["P", "E"]
+cts = [
+    Contact.objects.create(
+        contact_type=contact_type[i%2],
+        contact=(faker.phone_number() if contact_type[i%2] == "P" else faker.email()),
+    )
+    for i in range(200)
+]
+print(f"Added contacts {len(cts)}")
 
 # Links fixtures
-Link.objects.all().delete()
-lk1 = Link.objects.create(
-    link_type="W",
-    link="www.mysite.com",
-)
-lk2 = Link.objects.create(
-    link_type="R",
-    link="www.github.com/user",
-)
-print("Added links")
+
+link_types = ["W", "R"]
+links = [
+    Link.objects.create(
+        link_type=link_types[i%2],
+        link=(faker.domain_name() if link_types[i%2] == "W" else f"github.com/{faker.slug()}"),
+    )
+    for i in range(100)
+]
+print(f"Added links {len(links)}")
 
 # Resumes fixtures
-Resume.objects.all().delete()
-rs1 = Resume.objects.create(
-    title="Resume 1",
-)
-rs1.contacts.add(ct1)
-rs1.contacts.add(ct2)
-rs1.educations.add(ed1)
-rs1.educations.add(ed2)
-rs1.skills.add(sk1)
-rs1.skills.add(sk2)
-rs1.links.add(lk1)
-rs1.links.add(lk2)
-rs1.experiences.add(exp1)
-rs1.experiences.add(exp2)
-rs1.save()
-print("Added resume")
+
+resumes = [
+    Resume.objects.create(
+        title=f"{' '.join(faker.words(2)).title()}",
+    )
+    for i in range(10)
+]
+
+ct_num = [i for i in range(len(cts))]
+ed_num = [i for i in range(len(eds))]
+sk_num = [i for i in range(len(skills))]
+lk_num = [i for i in range(len(links))]
+ex_num = [i for i in range(len(exps))]
+
+for r in resumes:
+    for _ in range(int(len(cts)/len(resumes))):
+        r.contacts.add(cts[ct_num.pop()])
+    for _ in range(int(len(eds)/len(resumes))):
+        r.educations.add(eds[ed_num.pop()])
+    for _ in range(int(len(skills)/len(resumes))):
+        r.skills.add(skills[sk_num.pop()])
+    for _ in range(int(len(links)/len(resumes))):
+        r.links.add(links[lk_num.pop()])
+    for _ in range(int(len(exps)/len(resumes))):
+        r.experiences.add(exps[ex_num.pop()])
+    r.save()
+
+print(f"Added resumes {len(resumes)}")
 
 # Jobs fixtures
 Job.objects.all().delete()
-job1 = Job.objects.create(
-    title="Web developer",
-    text="\n".join(
-        ["Description Description" for n in range(20)]
-    ),
-    pub_date=datetime.today(),
-    partner=pt1,
-)
-job1.tags.add(tg1)
-job1.tags.add(tg7)
-print("Added job")
+jobs = [
+    Job.objects.create(
+        title=f"{faker.job()}",
+        text=faker.text(),
+        pub_date=faker.date_time_this_year(),
+        partner=partners[i%len(partners)],
+    )
+    for i in range(50)
+]
+for job in jobs:
+    for _ in range(5):
+        choice = randint(0, len(tags)-1)
+        job.tags.add(tags[choice])
+print(f"Added jobs {len(jobs)}")
 
 # ApplicationSubmission fixtures
 ApplicationSubmission.objects.all().delete()
-app1 = ApplicationSubmission.objects.create(job=job1, resume=rs1)
-print("Added submission")
+apps = 0
+for i in range(2):
+    ApplicationSubmission.objects.create(
+        job=jobs[i],
+        resume=resumes[i]
+    )
+    ApplicationSubmission.objects.create(
+        job=jobs[i],
+        resume=resumes[i+5]
+    )
+    apps += 2
+print(f"Added submissions {apps}")

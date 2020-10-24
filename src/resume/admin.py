@@ -3,7 +3,6 @@ from django.contrib import admin
 from .models import (
     Skill,
     Experience,
-    Task,
     Contact,
     Institution,
     Education,
@@ -18,7 +17,6 @@ class SkillAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "description",
-        "version",
         "slug",
     )
     # prepopulated_fields = {"slug": ("name",)}
@@ -38,11 +36,6 @@ class ExperienceAdmin(admin.ModelAdmin):
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     list_display = ("contact_type", "contact", "slug")
-
-
-@admin.register(Task)
-class TaskAdmin(admin.ModelAdmin):
-    list_display = ("experience", "description", "slug")
 
 
 @admin.register(Institution)

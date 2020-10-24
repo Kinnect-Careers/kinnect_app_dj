@@ -30,7 +30,7 @@ class Tag(Model):
 
 class Company(Model):
     name = CharField(
-        max_length=31,
+        max_length=50,
         db_index=True,
     )
     location = CharField(max_length=200)
