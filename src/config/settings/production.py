@@ -4,7 +4,11 @@ from .base import *
 #      PROD Settings
 #############################
 
-ALLOWED_HOSTS = [".herokuapp.com", ".kinnectcareers.com"]
+ALLOWED_HOSTS = [
+    ".herokuapp.com",
+    ".kinnectcareers.com",
+    "https://kinnect-front.herokuapp.com"
+]
 
 ADMINS = MANAGERS = [
     {"Rick Nunes", "sanunes.ricardo@gmail.com"},

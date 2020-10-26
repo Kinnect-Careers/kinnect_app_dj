@@ -1,2 +1,3 @@
-release: pip freeze && python src/manage.py migrate
+release: pip freeze
+release: python src/manage.py migrate
 web: gunicorn config.wsgi --chdir src --log-file -
