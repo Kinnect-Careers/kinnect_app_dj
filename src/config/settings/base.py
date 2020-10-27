@@ -156,7 +156,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "http://127.0.0.1:4200",
     "http://68.161.139.249:4200",
-    "http://192.168.1.7:4200"
+    "http://192.168.1.7:4200",
+    "https://kinnect-front.herokuapp.com",
 ]
 
 REST_FRAMEWORK = {
