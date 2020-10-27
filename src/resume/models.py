@@ -74,6 +74,8 @@ class Institution(Model):
 class Education(Model):
     HSI = "HSI"
     HS = "HS"
+    AS = "AS"
+    AAS = "AAS"
     BS = "BS"
     BA = "BA"
     MS = "MS"
@@ -82,6 +84,8 @@ class Education(Model):
     DEGREE_CHOICES = (
         (HSI, "Incomplete High School"),
         (HS, "High School"),
+        (AS, "Associate of Science"),
+        (AAS, "Associate of Applied Science"),
         (BS, "Bachelor of Science"),
         (BA, "Bachelor of Arts"),
         (MS, "Masters of Science"),
