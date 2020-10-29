@@ -4,6 +4,7 @@ from rest_framework.serializers import (
     HyperlinkedRelatedField,
     SlugRelatedField,
     ModelSerializer,
+    ListSerializer,
 )
 from .models import (
     Skill,
@@ -79,33 +80,60 @@ class EducationSerializer(ModelSerializer):
     #)
     class Meta:
         model = Education
-        exclude = ("id",)
+        fields = '__all__'
 
 
-class ContactSerializer(HyperlinkedModelSerializer):
+class ComponentListSerializer(ListSerializer):
+    def update(self, instance, validated_data):
+        component_mapping = {component.id: component for component in instance}
+        data_mapping = {item['id']: item for item in validated_data}
+        ret = []
+        for comp_id, data in data_mapping.items():
+            component = component_mapping.get(comp_id, None)
+            if component is None:
+                ret.append(self.child.create(data))
+            else:
+                ret.append(self.child.update(componnt, data))
+
+        for comp_id, component in component_mapping.items():
+            if comp_id not in data_mapping:
+                component.delete()
+        return ret
+
+
+class ContactSerializer(ModelSerializer):
     """Serializer for Contacts data"""
+
+    def create(self, validated_data):
+        contacts = self.Meta.model.objects.filter(contact=validated_data['contact'])
+        if len(contacts) > 0:
+            return contacts[0]
+        else:
+            return self.Meta.model.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.update(instance, **validated_data)
+        return instance
+
     class Meta:
         model = Contact
+        list_serializer_class = ComponentListSerializer
         fields = "__all__"
-        extra_kwargs = {
-            "url": {
-                "lookup_field": "slug",
-                "view_name": "api-contact-detail",
-            }
-        }
 
 
-class LinkSerializer(HyperlinkedModelSerializer):
+class LinkSerializer(ModelSerializer):
     """Serializer for Links data"""
+    def create(self, validated_data):
+        links = self.Meta.model.objects.filter(link=validated_data['link'])
+        if len(links) > 0:
+            return links[0]
+        else:
+            return self.Meta.model.objects.create(**validated_data)
+
     class Meta:
         model = Link
+        list_serializer_class = ComponentListSerializer
         fields = "__all__"
-        extra_kwargs = {
-            "url": {
-                "lookup_field": "slug",
-                "view_name": "api-link-detail",
-            }
-        }
 
 
 class ResumeSerializer(ModelSerializer):
@@ -116,6 +144,10 @@ class ResumeSerializer(ModelSerializer):
     educations = EducationSerializer(many=True)
     skills = SkillSerializer(many=True)
 
+    class Meta:
+        model = Resume
+        fields = "__all__"
+
     def create(self, data, *args, **kwargs):
         ModelClass = self.Meta.model
         new_instance = ModelClass.objects.create(title=data['title'])
@@ -123,61 +155,58 @@ class ResumeSerializer(ModelSerializer):
         return new_instance
 
     def update(self, instance, validated_data):
+        # Adding contacts to resume instance
+        contacts_data = validated_data.pop('contacts')
+        contacts = instance.contacts
+        contacts.clear()
+        for contact in contacts_data:
+            obj = Contact.objects.filter(contact=contact['contact'])[0]
+            contacts.add(obj)
+
+        # Adding links to resume instance
+        links_data = validated_data.pop('links')
+        links = instance.links
+        links.clear()
+        for link in links_data:
+            obj = Link.objects.filter(link=link['link'])[0]
+            links.add(obj)
+
+        # Adding educational experiences to resume instance
+        educations_data = validated_data.pop('educations')
+        educations = instance.educations
+        educations.clear()
+        for ed in educations_data:
+            obj = Education.objects.filter(
+                degree=ed['degree'],
+                institution=ed['institution'],
+                started_at=ed['started_at']
+            )[0]
+            educations.add(obj)
+
+        # Adding professional experiences to resume instance
+        experiences_data = validated_data.pop('experiences')
+        experiences = instance.experiences
+        experiences.clear()
+        for exp in experiences_data:
+            obj = Experience.objects.filter(
+                job_title=exp['job_title'],
+                company=exp['company'],
+                started_at=exp['started_at'],
+                ended_at=exp['ended_at']
+            )[0]
+            experiences.add(obj)
+
+        # Adding skills to resume instance
+        skills_data = validated_data.pop('skills')
+        skills = instance.skills
+        skills.clear()
+        for skill in skills_data:
+            obj = Skill.objects.filter(name=skill['name'])[0]
+            skills.add(obj)
+
         instance.title = validated_data.get('title', instance.title)
         instance.save()
-        contacts = validated_data.get('contacts', None)
-        if contacts:
-            instance.contacts.clear()
-            for contact in contacts:
-                to_resume = Contact.objects.filter(contact=contact.get('contact'))
-                if len(to_resume):
-                    instance.contacts.add(to_resume[0])
-            instance.save()
-        links = validated_data.get('links', None)
-        if links:
-            instance.links.clear()
-            for link in links:
-                to_resume = Link.objects.filter(link=link.get('link'))
-                if len(to_resume):
-                    instance.links.add(to_resume[0])
-            instance.save()
-        experiences = validated_data.get('experiences', None)
-        if experiences:
-            instance.experiences.clear()
-            for experience in experiences:
-                to_resume = Experience.objects.filter(
-                    company=experience.get('company'),
-                    job_title=experience.get('job_title')
-                )
-                if len(to_resume):
-                     instance.experiences.add(to_resume[0])
-            instance.save()
-        educations = validated_data.get('educations', None)
-        if educations:
-            instance.educations.clear()
-            for ed in educations:
-                to_resume = Education.objects.filter(
-                    degree_type=ed.get('degree_type'),
-                    degree=ed.get('degree'),
-                    institution=ed.get('institution'),
-                    started_at=ed.get('started_at'),
-                    ended_at=ed.get('ended_at')
-                )
-                if len(to_resume):
-                    instance.educations.add(to_resume[0])
-            instance.save()
-        skills = validated_data.get('skills', None)
-        if skills:
-            for skill in skills:
-                to_resume = Skill.objects.filter(name=skill.get('name'))
-                if len(to_resume):
-                    instance.skills.add(to_resume[0])
-            instance.save()
         return instance
-
-    class Meta:
-        model = Resume
-        exclude = ("id",)
 
 
 class ApplicationSubmissionSerializer(ModelSerializer):

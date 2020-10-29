@@ -127,12 +127,12 @@ class Contact(Model):
         choices=CONTACT_CHOICES,
         default=PHONE,
     )
-    slug = AutoSlugField(
-        max_length=50,
-        populate_from=["contact_type", "contact"],
-    )
     contact = CharField(max_length=100)
     created_at = DateTimeField(auto_now_add=True)
+    slug = AutoSlugField(
+        max_length=50,
+        populate_from=["contact"],
+    )
 
     class Meta:
         ordering = ("-created_at",)

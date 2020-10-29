@@ -55,8 +55,6 @@ class ExperienceViewSet(ModelViewSet):
     serializer_class = ExperienceSerializer
 
     def perform_create(self, serializer):
-        print(serializer.is_valid())
-        print(serializer.validated_data)
         serializer.save()
 
 
@@ -64,6 +62,17 @@ class ContactViewSet(ModelViewSet):
     lookup_field = "slug"
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED, headers=headers)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
 
 
 class LinkViewSet(ModelViewSet):
@@ -91,18 +100,12 @@ class ResumeViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        print("Serializer {}".format(serializer.is_valid()))
-        print(serializer.validated_data)
-        print("Request")
-        print(request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def partial_update(self, request, *args, **kwargs):
-        print(len(request.data['educations']))
-        #print(len(request.data['links']))
         kwargs['partial'] = True
         return self.update(request, *args, **kwargs)
 
@@ -112,8 +115,6 @@ class ResumeViewSet(ModelViewSet):
         serializer = self.get_serializer(resume, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        print("Serializer valid {}".format(serializer.is_valid()))
-        print(len(serializer.data['educations']))
         return super().update(request, *args, **kwargs)
 
 
