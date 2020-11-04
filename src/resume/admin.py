@@ -3,10 +3,9 @@ from django.contrib import admin
 from .models import (
     Skill,
     Experience,
-    Contact,
     Institution,
     Education,
-    Link,
+    Personal,
     Resume,
     ApplicationSubmission,
 )
@@ -33,11 +32,6 @@ class ExperienceAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Contact)
-class ContactAdmin(admin.ModelAdmin):
-    list_display = ("contact_type", "contact", "slug")
-
-
 @admin.register(Institution)
 class InstitutionAdmin(admin.ModelAdmin):
     list_display = ("name", "location", "slug")
@@ -55,9 +49,9 @@ class EducationAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Link)
-class LinkAdmin(admin.ModelAdmin):
-    list_display = ("link_type", "link", "slug")
+@admin.register(Personal)
+class PersonalAdmin(admin.ModelAdmin):
+    list_display = ("personal_type", "data", "slug")
 
 
 @admin.register(Resume)

@@ -95,7 +95,6 @@ class Education(Model):
     degree_type = CharField(
         max_length=3,
         choices=DEGREE_CHOICES,
-        default=BS,
     )
     degree = CharField(max_length=100)
     slug = AutoSlugField(
@@ -115,58 +114,47 @@ class Education(Model):
         )
 
 
-class Contact(Model):
+class Personal(Model):
     PHONE = "P"
     EMAIL = "E"
-    CONTACT_CHOICES = (
-        (PHONE, "Phone"),
-        (EMAIL, "Email"),
-    )
-    contact_type = CharField(
-        max_length=2,
-        choices=CONTACT_CHOICES,
-        default=PHONE,
-    )
-    contact = CharField(max_length=100)
-    created_at = DateTimeField(auto_now_add=True)
-    slug = AutoSlugField(
-        max_length=50,
-        populate_from=["contact"],
-    )
-
-    class Meta:
-        ordering = ("-created_at",)
-
-    def __str__(self):
-        return f"{self.contact_type}: {self.contact}"
-
-
-class Link(Model):
     WEBSITE = "W"
     REPOSITORY = "R"
     OTHER = "O"
-    LINK_CHOICES = (
+    CONTACT_CHOICES = (
+        (PHONE, "Phone"),
+        (EMAIL, "Email"),
         (WEBSITE, "Website"),
         (REPOSITORY, "Repository"),
         (OTHER, "Other"),
     )
-    link_type = CharField(
+    personal_type = CharField(
         max_length=2,
-        choices=LINK_CHOICES,
-        default=WEBSITE,
+        choices=CONTACT_CHOICES
     )
-    link = CharField(max_length=100)
-    slug = AutoSlugField(
-        max_length=50, populate_from=["link_type", "link"]
-    )
+    data = CharField(max_length=100)
     created_at = DateTimeField(auto_now_add=True)
-    # owner = ForeignKey("auth.User", on_delete=CASCADE)
+    slug = AutoSlugField(
+        max_length=50,
+        populate_from=["personal_type", "created_at"],
+    )
 
     class Meta:
         ordering = ("-created_at",)
 
     def __str__(self):
-        return f"{self.link_type}: {self.link}"
+        return f"{self.personal_type}: {self.data}"
+
+
+class Other(Model):
+    type_data = CharField(max_length=100)
+    data = CharField(max_length=250)
+    created_at = DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        return self.data
 
 
 class Resume(Model):
@@ -174,11 +162,11 @@ class Resume(Model):
     slug = AutoSlugField(
         max_length=50, populate_from=["title"]
     )
-    contacts = ManyToManyField(Contact)
-    links = ManyToManyField(Link)
+    personal = ManyToManyField(Personal)
     experiences = ManyToManyField(Experience)
     educations = ManyToManyField(Education)
     skills = ManyToManyField(Skill)
+    other = ManyToManyField(Other)
     created_at = DateTimeField(auto_now=True)
 
     class Meta:

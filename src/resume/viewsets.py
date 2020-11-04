@@ -7,10 +7,10 @@ from rest_framework.permissions import IsAuthenticated
 from .models import (
     Skill,
     Experience,
-    Contact,
-    Link,
+    Personal,
     Institution,
     Education,
+    Other,
     Resume,
     ApplicationSubmission,
 )
@@ -20,8 +20,8 @@ from .serializers import (
     UserSerializer,
     SkillSerializer,
     ExperienceSerializer,
-    ContactSerializer,
-    LinkSerializer,
+    PersonalSerializer,
+    OtherSerializer,
     InstitutionSerializer,
     EducationSerializer,
     ResumeSerializer,
@@ -57,11 +57,14 @@ class ExperienceViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
 
+class OtherViewSet(ModelViewSet):
+    queryset = Other.objects.all()
+    serializer_class = OtherSerializer
 
-class ContactViewSet(ModelViewSet):
+class PersonalViewSet(ModelViewSet):
     lookup_field = "slug"
-    queryset = Contact.objects.all()
-    serializer_class = ContactSerializer
+    queryset = Personal.objects.all()
+    serializer_class = PersonalSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -73,12 +76,6 @@ class ContactViewSet(ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return self.update(request, *args, **kwargs)
-
-
-class LinkViewSet(ModelViewSet):
-    lookup_field = "slug"
-    queryset = Link.objects.all()
-    serializer_class = LinkSerializer
 
 
 class InstitutionViewSet(ModelViewSet):

@@ -11,8 +11,8 @@ from .models import (
     Experience,
     Institution,
     Education,
-    Contact,
-    Link,
+    Personal,
+    Other,
     Resume,
     ApplicationSubmission,
 )
@@ -35,7 +35,7 @@ class GroupSerializer(HyperlinkedModelSerializer):
         fields = ["url", "name"]
 
 
-class SkillSerializer(HyperlinkedModelSerializer):
+class SkillSerializer(ModelSerializer):
     """Serializer for Skill data"""
     tags = TagSerializer(many=True, read_only=True)
 
@@ -55,8 +55,7 @@ class ExperienceSerializer(ModelSerializer):
     """Serializer for Experience data"""
     class Meta:
         model = Experience
-        #fields = "__all__"
-        exclude = ("id",)
+        fields = "__all__"
 
 
 class InstitutionSerializer(HyperlinkedModelSerializer):
@@ -74,14 +73,14 @@ class InstitutionSerializer(HyperlinkedModelSerializer):
 
 class EducationSerializer(ModelSerializer):
     """Serializer for Education data"""
-    #institution = SlugRelatedField(
-    #    read_only=True,
-    #    slug_field='name'
-    #)
     class Meta:
         model = Education
         fields = '__all__'
 
+class OtherSerializer(ModelSerializer):
+    class Meta:
+        model = Other
+        fields = '__all__'
 
 class ComponentListSerializer(ListSerializer):
     def update(self, instance, validated_data):
@@ -101,13 +100,13 @@ class ComponentListSerializer(ListSerializer):
         return ret
 
 
-class ContactSerializer(ModelSerializer):
-    """Serializer for Contacts data"""
+class PersonalSerializer(ModelSerializer):
+    """Serializer for Personal data"""
 
     def create(self, validated_data):
-        contacts = self.Meta.model.objects.filter(contact=validated_data['contact'])
-        if len(contacts) > 0:
-            return contacts[0]
+        personal = self.Meta.model.objects.filter(data=validated_data['data'])
+        if len(personal) > 0:
+            return personal[0]
         else:
             return self.Meta.model.objects.create(**validated_data)
 
@@ -116,33 +115,18 @@ class ContactSerializer(ModelSerializer):
         return instance
 
     class Meta:
-        model = Contact
-        list_serializer_class = ComponentListSerializer
-        fields = "__all__"
-
-
-class LinkSerializer(ModelSerializer):
-    """Serializer for Links data"""
-    def create(self, validated_data):
-        links = self.Meta.model.objects.filter(link=validated_data['link'])
-        if len(links) > 0:
-            return links[0]
-        else:
-            return self.Meta.model.objects.create(**validated_data)
-
-    class Meta:
-        model = Link
+        model = Personal
         list_serializer_class = ComponentListSerializer
         fields = "__all__"
 
 
 class ResumeSerializer(ModelSerializer):
     """Serializer for Resume data"""
-    contacts = ContactSerializer(many=True)
-    links = LinkSerializer(many=True)
+    personal = PersonalSerializer(many=True)
     experiences = ExperienceSerializer(many=True)
     educations = EducationSerializer(many=True)
     skills = SkillSerializer(many=True)
+    other = OtherSerializer(many=True)
 
     class Meta:
         model = Resume
@@ -155,21 +139,13 @@ class ResumeSerializer(ModelSerializer):
         return new_instance
 
     def update(self, instance, validated_data):
-        # Adding contacts to resume instance
-        contacts_data = validated_data.pop('contacts')
-        contacts = instance.contacts
-        contacts.clear()
-        for contact in contacts_data:
-            obj = Contact.objects.filter(contact=contact['contact'])[0]
-            contacts.add(obj)
-
-        # Adding links to resume instance
-        links_data = validated_data.pop('links')
-        links = instance.links
-        links.clear()
-        for link in links_data:
-            obj = Link.objects.filter(link=link['link'])[0]
-            links.add(obj)
+        # Adding personal to resume instance
+        personal_data = validated_data.pop('personal')
+        personal = instance.personal
+        personal.clear()
+        for data in personal_data:
+            obj = Personal.objects.filter(data=data['data'])[0]
+            personal.add(obj)
 
         # Adding educational experiences to resume instance
         educations_data = validated_data.pop('educations')
@@ -203,6 +179,14 @@ class ResumeSerializer(ModelSerializer):
         for skill in skills_data:
             obj = Skill.objects.filter(name=skill['name'])[0]
             skills.add(obj)
+
+        other_data = validated_data.pop('other')
+        other = instance.other
+        print(other_data)
+        other.clear()
+        for data in other_data:
+            obj = Other.objects.filter(data=data['data'])[0]
+            other.add(obj)
 
         instance.title = validated_data.get('title', instance.title)
         instance.save()

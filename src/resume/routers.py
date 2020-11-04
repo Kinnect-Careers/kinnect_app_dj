@@ -7,8 +7,8 @@ from .viewsets import (
     ExperienceViewSet,
     InstitutionViewSet,
     EducationViewSet,
-    ContactViewSet,
-    LinkViewSet,
+    PersonalViewSet,
+    OtherViewSet,
     ResumeViewSet,
     SubmissionViewSet,
 )
@@ -18,8 +18,8 @@ api_router.register("user", UserViewSet, base_name="api-user")
 api_router.register("group", GroupViewSet, base_name="api-group")
 api_router.register("skill", SkillViewSet, base_name="api-skill")
 api_router.register("experience", ExperienceViewSet, base_name="api-experience")
-api_router.register("contact", ContactViewSet, base_name="api-contact")
-api_router.register("link", LinkViewSet, base_name="api-link")
+api_router.register("personal", PersonalViewSet, base_name="api-personal")
+api_router.register("other", OtherViewSet, base_name="api-other")
 api_router.register(
     "institution",
     InstitutionViewSet,
